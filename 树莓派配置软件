@@ -1,3 +1,41 @@
 1、安装opencv，在python2环境下安装：sudo apt-get install libopencv-dev  sudo apt-get install python-opencv ；python3中没安装成功
 语音合成 1 安装依赖——命令行播放器 mpg123 ：sudo apt-get install mpg123  2、 安装百度语音 Python 封装包：pip install ilangbd # 目前只支持 Python2
 3 大功告成，在终端或脚本中使用 ilang 命令即可进行语音合成：ilang "你好，世界！" python中调用os脚本运行
+
+
+通过运行以下命令来安装GNU Screen：
+
+1
+Sudo apt-get install screen
+安装OpenCV
+安装过程将在终端上完成，因此从Raspberry Pi打开终端会话以安装OpenCV。在命令提示符处运行以下命令：
+
+1
+2
+sudo apt-get update
+sudo apt-get upgrade
+接下来，从我的GitHub帐户下载shell脚本。如果可能，请使用复制和粘贴以避免输入完整的网址。同样，由于长度的原因，地址可能会绕到下一行。
+
+1
+Wget https://raw.githubusercontent.com/MarkAHeywood/raspberrypi/master/opencv/pi_opencv_source_install_o.sh
+在命令提示符下启动GNU Screen会话（如果已安装的话）：
+
+1
+screen -S opencv
+通过执行以下命令来启动OpenCV安装过程：
+
+1
+source pi_opencv_source_install_o.sh
+现在将开始安装，在Raspberry Pi 3上，此过程大约需要3小时45分钟。因此，如果在Shell脚本中使用默认设置，则此安装过程将在一个CPU内核上运行。
+
+如果外壳程序脚本是在Screen虚拟会话中启动的，则可以执行以下命令从会话中分离。安装将继续在虚拟会话中进行，但是现在您可以安全地退出终端了。因此，您现在可以关闭客户端计算机以节省电量。但是，请保持Raspberry Pi运行以完成OpenCV安装。
+
+1
+Control a, then d on the keyboard in quick succession.
+按下上方的键后，您将返回原始的终端登录名。但是，如果不是这种情况，则在按键盘上的[control-a]之后，您可能过慢地按下了[d]键。
+
+OpenCV安装结束
+当您认为OpenCV安装已完成时，请像以前一样返回终端登录并输入以下命令。此命令将使您重新连接到Screen虚拟会话：
+
+1
+screen -r opencv
