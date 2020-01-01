@@ -1,0 +1,50 @@
+　百度语音--语音识别--python SDK文档：
+
+　　　　　　https://ai.baidu.com/docs#/ASR-Online-Python-SDK/top
+
+　　　　第三方模块：pip install baidu-aip　
+    # coding=gbk
+# !/usr/bin/env python
+
+import requests
+
+import json
+
+
+from aip import AipSpeech
+ 
+
+# 使用时请将下面的内容替换为你自己的
+
+APP_ID = '18154448'
+
+API_KEY = 'z43T3yP40WyplTDQFfvIabpg'
+
+SECRET_KEY = 'iLDNxFHViyQdHuF4phzV76Rf86gya1iy'
+
+# 初始化
+
+client = AipSpeech(APP_ID, API_KEY, SECRET_KEY)
+def text2sound(words='你好'):
+  client = AipSpeech(APP_ID, API_KEY, SECRET_KEY)
+
+  result = client.synthesis(words, 'zh', 1, {
+'vol': 5, 'aue': 6, 'per': 4
+}) # 具体的参数设置请参考官方文档
+
+  if not isinstance(result, dict):
+    with open('test.wav', 'wb') as f:
+        f.write(result)
+    return True
+  else:
+    return False
+def sound2text(file_path='test.wav'):
+
+    with open(file_path, 'rb') as fp:
+
+       recog=client.asr(fp.read(), 'wav', 16000)
+    text=recog.get('result')[0]
+    print(recog)
+    print(text)
+text2sound('打开电视abc')
+print(sound2text('test.wav'))
