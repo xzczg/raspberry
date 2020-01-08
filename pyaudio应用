@@ -1,0 +1,220 @@
+监控声音
+# -*- coding: utf-8 -*-
+import pyaudio
+import wave
+import numpy as np
+
+def Monitor():
+    CHUNK = 512
+    FORMAT = pyaudio.paInt16
+    CHANNELS = 1
+    RATE = 48000
+    RECORD_SECONDS = 5
+    WAVE_OUTPUT_FILENAME = "cache.wav"
+    p = pyaudio.PyAudio()
+    stream = p.open(format=FORMAT,
+                    channels=CHANNELS,
+                    rate=RATE,
+                    input=True,
+                    frames_per_buffer=CHUNK)
+    print("开始缓存录音")
+    frames = []
+    while (True):
+        print 'begin '
+        for i in range(0, 100):
+            data = stream.read(CHUNK)
+            frames.append(data)
+        audio_data = np.fromstring(data, dtype=np.short)
+        large_sample_count = np.sum( audio_data > 800 )
+        temp = np.max(audio_data)
+        if temp > 800 :
+            print "检测到信号"
+            print '当前阈值：',temp 
+            break
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
+    wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+    wf.setnchannels(CHANNELS)
+    wf.setsampwidth(p.get_sample_size(FORMAT))
+    wf.setframerate(RATE)
+    wf.writeframes(b''.join(frames))
+    wf.close()
+
+if __name__ == '__main__':
+    Monitor()
+    
+播放
+#-*-coding:utf-8-*-
+
+#引入库
+import pyaudio
+import wave
+import sys
+
+# 定义数据流块
+CHUNK = 1024
+
+if len(sys.argv) < 2:
+    print("Plays a wave file.\n\nUsage: %s filename.wav" % sys.argv[0])
+    sys.exit(-1)
+
+# 只读方式打开wav文件
+wf = wave.open(r'D:\\Python\\Lib\\site-packages\\PyQt4\\uic\\test.wav', 'rb')#(sys.argv[1], 'rb')
+
+p = pyaudio.PyAudio()
+
+# 打开数据流
+stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+                channels=wf.getnchannels(),
+                rate=wf.getframerate(),
+                output=True)
+
+# 读取数据
+data = wf.readframes(CHUNK)
+
+# 播放  
+while data != '':
+    stream.write(data)
+    data = wf.readframes(CHUNK)
+
+# 停止数据流  
+stream.stop_stream()
+stream.close()
+
+# 关闭 PyAudio  
+p.terminate()  
+
+录音
+import pyaudio
+import wave
+
+CHUNK = 1024
+FORMAT = pyaudio.paInt16
+CHANNELS = 2
+RATE = 44100
+RECORD_SECONDS = 5
+WAVE_OUTPUT_FILENAME = "output.wav"
+
+p = pyaudio.PyAudio()
+
+stream = p.open(format=FORMAT,
+                channels=CHANNELS,
+                rate=RATE,
+                input=True,
+                frames_per_buffer=CHUNK)
+
+print("* recording")
+
+frames = []
+
+for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+    data = stream.read(CHUNK)
+    frames.append(data)
+
+print("* done recording")
+
+stream.stop_stream()
+stream.close()
+p.terminate()
+
+wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+wf.setnchannels(CHANNELS)
+wf.setsampwidth(p.get_sample_size(FORMAT))
+wf.setframerate(RATE)
+wf.writeframes(b''.join(frames))
+wf.close()
+
+回放
+import pyaudio
+
+CHUNK = 1024
+WIDTH = 2
+CHANNELS = 2
+RATE = 44100
+RECORD_SECONDS = 5
+
+p = pyaudio.PyAudio()
+
+stream = p.open(format=p.get_format_from_width(WIDTH),
+                channels=CHANNELS,
+                rate=RATE,
+                input=True,
+                output=True,
+                frames_per_buffer=CHUNK)
+
+print("* recording")
+
+for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+    data = stream.read(CHUNK)
+    stream.write(data, CHUNK)
+
+print("* done")
+
+stream.stop_stream()
+stream.close()
+
+p.terminate()
+回调
+import pyaudio
+import wave
+import time
+import sys
+
+if len(sys.argv) < 2:
+    print("Plays a wave file.\n\nUsage: %s filename.wav" % sys.argv[0])
+    sys.exit(-1)
+
+wf = wave.open(sys.argv[1], 'rb')
+
+p = pyaudio.PyAudio()
+
+def callback(in_data, frame_count, time_info, status):
+    data = wf.readframes(frame_count)
+    return (data, pyaudio.paContinue)
+
+stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+                channels=wf.getnchannels(),
+                rate=wf.getframerate(),
+                output=True,
+                stream_callback=callback)
+
+stream.start_stream()
+
+while stream.is_active():
+    time.sleep(0.1)
+
+stream.stop_stream()
+stream.close()
+wf.close()
+
+p.terminate()
+非阻塞回调
+import pyaudio
+import time
+
+WIDTH = 2
+CHANNELS = 2
+RATE = 44100
+
+p = pyaudio.PyAudio()
+
+def callback(in_data, frame_count, time_info, status):
+    return (in_data, pyaudio.paContinue)
+
+stream = p.open(format=p.get_format_from_width(WIDTH),
+                channels=CHANNELS,
+                rate=RATE,
+                input=True,
+                output=True,
+                stream_callback=callback)
+
+stream.start_stream()
+
+while stream.is_active():
+    time.sleep(0.1)
+
+stream.stop_stream()
+stream.close()
+
+p.terminate()
