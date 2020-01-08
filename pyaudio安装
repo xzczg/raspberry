@@ -1,0 +1,2 @@
+pc端 python 3.7可以，3.8失败，可以用pip install python3-pip 试一下
+pip install PyAudio
