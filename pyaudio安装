@@ -38,3 +38,13 @@ sudo apt-get install portaudio.dev
 sudo pip install pyaudio
 
 sudo pip3 install pyaudio
+
+
+如果在多个程序中使用pyaudio，可能会报错：
+
+IOError: [Errno -9985] Device unavailable
+1
+或者其他的类似于设备不能使用的错误，可以试试以下代码
+
+sudo apt-get install pulseaudio
+pulseaudio --start
