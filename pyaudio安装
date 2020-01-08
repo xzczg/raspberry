@@ -1,2 +1,40 @@
 pc端 python 3.7可以，3.8失败，可以用pip install python3-pip 试一下
 pip install PyAudio
+下载whl文件后安装成功 用 pip install PyAudio-0.2.11-cp37-cp37m-win_amd64.whl
+https://pypi.org/project/PyAudio/0.2.11/#files
+https://github.com/intxcc/pyaudio_portaudio/releases
+树莓派安装 
+
+$sudo apt-get install python-pyaudio
+$ sudo apt-get install git
+$ git clone http://people.csail.mit.edu/hubert/git/pyaudio.git
+$ sudo apt-get install libportaudio0 libportaudio2 libportaudiocpp0 portaudio19-dev
+$ sudo apt-get python-dev
+$ cd pyaudio
+$ sudo python setup.py instal
+
+sudo apt-get install pulseaudio
+
+一、用apt-get安装
+pyaudio是python的模块，在树莓派下安装pyaudio  首先需安装portaudio.dev
+
+
+sudo apt-get install portaudio.dev
+
+然后再：
+sudo apt-get install python-pyaudio
+如果的python3也可以是：
+
+sudo apt-get install python3-pyaudio
+
+二、用pip安装
+在pip安装模块是有可能报无法操作文件的错误，可以在pip前加上sudo,例如：
+
+sudo pip install wave
+在安装pyaudio前先安装portaudio.dev
+
+sudo apt-get install portaudio.dev
+
+sudo pip install pyaudio
+
+sudo pip3 install pyaudio
