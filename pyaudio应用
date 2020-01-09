@@ -290,8 +290,9 @@ if __name__ == '__main__':
 # -*- coding: utf-8 -*-
 import pyaudio
 import wave
+import time
 import numpy as np
-
+import matplotlib.pyplot as plt
 def Monitor():
     CHUNK = 512
     FORMAT = pyaudio.paInt16
@@ -309,7 +310,8 @@ def Monitor():
     print("ok")
     frames = []
     while (1):
-      #frames.clear()
+      isly=0
+      frames.clear()
       while(1):
         ly=0
         for i in range(0, int(RATE/CHUNK*2)):
@@ -317,13 +319,18 @@ def Monitor():
           frames.append(data)
           audio_data = np.fromstring(data, dtype=np.short)
           #large_sample_count = np.sum( audio_data > 800 )
+          #time = np.arange(0, RATE) * (1.0 / RATE)
           temp = np.max(audio_data)
           print(temp)
           if(temp>800):
             ly=1
+            isly=1
         if(ly==0):
           break
+      if(isly==0):
+        continue
       print('ok....')
+      time.sleep(2)
       #stream.stop_stream()
       #stream.close()
       #p.terminate()
