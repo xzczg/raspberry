@@ -32,6 +32,7 @@ sudo apt-get install python3-pyaudio
 
 sudo pip install wave
 在安装pyaudio前先安装portaudio.dev
+-----------------------------------------------------------
 
 sudo apt-get install portaudio.dev
 
@@ -48,3 +49,13 @@ IOError: [Errno -9985] Device unavailable
 
 sudo apt-get install pulseaudio
 pulseaudio --start
+
+
+
+2
+3
+使用webrtcvad库进行语音活动检测，webrtcvad采用的是GMM模型（可参考WebRTC之VAD算法这篇博文）：
+
+sudo pip3 install webrtcvad
+在webrtcvad中是对20ms的数据进行vad检测，若检测到语音活动则返回1，否则返回0。但对于vad检测返回的信号
+读取长度：int(rate*20/1000）
