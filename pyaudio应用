@@ -345,7 +345,7 @@ if __name__ == '__main__':
     Monitor()
 
 
-混合使用 建议用webrtsvad 监测语音 10   20   30 ms
+混合使用 建议用webrtcvad 监测语音 10   20   30 ms
 # !/usr/bin/env python
 # -*- coding: gbk -*-
 import pyaudio
