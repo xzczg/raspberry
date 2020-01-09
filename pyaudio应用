@@ -343,3 +343,124 @@ def Monitor():
 
 if __name__ == '__main__':
     Monitor()
+
+
+混合使用 建议用webrtsvad 监测语音 10   20   30 ms
+# !/usr/bin/env python
+# -*- coding: gbk -*-
+import pyaudio
+import wave
+import time
+import requests
+import json
+import sys
+import numpy as np
+from aip import AipSpeech
+APP_ID = '18154448'
+
+API_KEY = 'z43T3yP40WyplTDQFfvIabpg'
+
+SECRET_KEY = 'iLDNxFHViyQdHuF4phzV76Rf86gya1iy'
+
+def sound2text(file_path='test.wav'):
+    client = AipSpeech(APP_ID, API_KEY, SECRET_KEY)
+    with open(file_path, 'rb') as fp:
+       recog=client.asr(fp.read(), 'wav', 16000)
+    text=recog.get('result')[0]
+    #print(recog)
+    #print(text)
+    return text
+def text2sound(words='ddd'):
+  CHUNK = 512
+  client = AipSpeech(APP_ID, API_KEY, SECRET_KEY)
+
+  result = client.synthesis(words, 'zh', 1, {'vol': 6, 'aue': 6,'spd':1, 'per': 4}) 
+
+  if not isinstance(result, dict):
+    with open('test.wav', 'wb') as f:
+        f.write(result)
+    f.close
+    wf = wave.open(r'test.wav', 'rb')
+    p=pyaudio.PyAudio()
+    stream=p.open(format=p.get_format_from_width(2),
+		  channels=1,
+		  rate=16000,
+		  output=True)
+			     
+    data=wf.readframes(CHUNK)
+    while len(data) > 0:
+      stream.write(data)
+      data = wf.readframes(CHUNK)
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
+    return True
+  else:
+    return False
+  
+def Monitor():
+    CHUNK = 512
+    FORMAT = pyaudio.paInt16
+    CHANNELS = 1
+    RATE = 16000
+    RECORD_SECONDS = 5
+    ly=1
+    WAVE_OUTPUT_FILENAME = "acache.wav"
+    p = pyaudio.PyAudio()
+    stream = p.open(format=p.get_format_from_width(2),
+                    channels=CHANNELS,
+                    rate=RATE,
+                    input=True,
+                    output=True,
+                    frames_per_buffer=CHUNK)
+    
+    rframes = []
+    frames = []
+    wf = wave.open(r'test.wav', 'rb')
+    rdata=wf.readframes(CHUNK)
+    while len(rdata) > 0:
+      stream.write(rdata)
+      rdata = wf.readframes(CHUNK)
+    while (1):
+      isly=0
+      frames.clear()
+      while(1):
+        ly=0
+        for i in range(0, int(RATE/CHUNK*2)):
+          data = stream.read(CHUNK)
+          frames.append(data)
+          #stream.write(data, CHUNK)
+          audio_data = np.fromstring(data, dtype=np.short)
+          #large_sample_count = np.sum( audio_data > 800 )
+          #time = np.arange(0, RATE) * (1.0 / RATE)
+          temp = np.max(audio_data)
+          print(temp,)
+          if(temp>800):
+            ly=1
+            isly=1
+        if(ly==0):
+          break
+      if(isly==0):
+        continue
+      text2sound('开始转换')
+      time.sleep(3)
+      #stream.stop_stream()
+      #stream.close()
+      #p.terminate()
+      wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+      wf.setnchannels(CHANNELS)
+      wf.setsampwidth(p.get_sample_size(FORMAT))
+      wf.setframerate(RATE)
+      wf.writeframes(b''.join(frames))
+      wf.close()
+      text2sound('你说的是')
+      wf = wave.open(r'test.wav', 'rb')
+      rdata=wf.readframes(CHUNK)
+      while len(rdata) > 0:
+       stream.write(rdata)
+       rdata = wf.readframes(CHUNK)
+      wf.close()
+if __name__ == '__main__':
+    #Monitor()
+    #print(sound2text("test.wav"))
+    text2sound('你说的是:'+sound2text("test.wav"))
