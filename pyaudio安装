@@ -15,16 +15,12 @@ $ sudo python setup.py instal
 
 sudo apt-get install pulseaudio
 
-一、用apt-get安装
-pyaudio是python的模块，在树莓派下安装pyaudio  首先需安装portaudio.dev
-
-
+一、用apt-get安装（测试通过的）
+pyaudio是python的模块，在树莓派下安装pyaudio  首先需安装portaudio.dev
 sudo apt-get install portaudio.dev
-
 然后再：
 sudo apt-get install python-pyaudio
 如果的python3也可以是：
-
 sudo apt-get install python3-pyaudio
 
 二、用pip安装
