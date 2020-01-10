@@ -1,0 +1,9 @@
+测试用，轮流播放right left左右声道，用aplay -l  和arecord -l,可以查看设备 1，0 。1是card 0是Device
+speaker-test -Dplughw:0,0 -c2 -twav
+
+可以使用arecord命令录制音频，然后使用aplay命令回放，-D选项按名称选定设备，-f选项设定音频格式，-c选项是声道数，-t选项是音频文件格式，详细选项设置内容可使用man查看。
+aplay -Dplughw:1,0 test.wav
+arecord -Dplughw:1,0 -fcd -c2 -twav tee.wav
+可以使用alsaloop命令将所采集音频回放，-C选项是采集设备，-P选项是回放设备，这一命令支持跨声卡的音频采集回放。
+alsaloop -Cplughw:1,0 -Pplughw:0,0
+alsaloop -Cplughw:1,0 -Pplughw:1,0
