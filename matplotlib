@@ -1,0 +1,4 @@
+1，打开LX终端
+2，输入sudo apt-get install python3-matplotlib
+3，使用pip3 install matplotlib命令最后会出一堆错误，不知道是什么原因
+https://www.cnblogs.com/lyrichu/p/6848732.html
