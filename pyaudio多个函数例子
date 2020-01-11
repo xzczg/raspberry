@@ -1,0 +1,248 @@
+#!/usr/bin/python
+#-*-coding:UTF-8 -*-
+import pyaudio
+import wave
+import numpy as np
+import requests
+import json
+from aip import AipSpeech
+import webrtcvad
+import time
+import threading
+import pygame
+import RPi.GPIO as GPIO
+APP_ID = '18154448'
+API_KEY = 'z43T3yP40WyplTDQFfvIabpg'
+SECRET_KEY = 'iLDNxFHViyQdHuF4phzV76Rf86gya1iy'
+p=pyaudio.PyAudio()
+# 初始化			
+vad= webrtcvad.Vad(1)
+CHUNK = int(16000/50)
+FORMAT = pyaudio.paInt16
+CHANNELS = 1
+RATE = 16000
+RECORD_SECONDS=5
+WAVE_OUTPUT_FILENAME = "luyin.wav"
+exitFlag=0
+frames = []
+client = AipSpeech(APP_ID, API_KEY, SECRET_KEY)
+class myThread (threading.Thread):
+  def __init__(self,threadID,name,counter,jg):
+    threading.Thread.__init__(self)
+    self.threadID = threadID
+    self.name = name
+    self.jg = jg
+    self.counter = counter
+  def run(self):
+    print ("开始线程：%d" %self.threadID)
+    #print_time(self.name, self.counter, self.jg)
+    mp3play()
+    print ("退出线程：%d" %self.threadID)
+    #global exitFlag
+    #exitFlag=0
+
+def print_time(threadName, delay, counter):
+  while counter:
+    if exitFlag:
+      threadName.exit()
+    time.sleep(delay)
+    print ("%s: %s" % (threadName, time.ctime(time.time())))
+    counter -= 1
+def mp3play():
+   pygame.mixer.init()
+   pygame.mixer.music.load('/home/pi/x2/96.mp3')
+   pygame.mixer.music.play(1)
+   while(1):
+     if exitFlag==1:
+        pygame.mixer.music.stop()
+        break
+
+       
+       
+def sound2text(file_path):
+    with open(file_path, 'rb') as fp:
+       recog=client.asr(fp.read(), 'wav', 16000)
+    text="s"
+    if recog.get('err_msg')=='success.':
+      #print(recog)
+      text=recog.get("result")[0]
+      #print(text)
+    else:
+      text="error"
+    return text
+def rectofile(file_path,dataframes):
+    wf = wave.open(file_path, 'wb')
+    wf.setnchannels(1)
+    wf.setsampwidth(2)
+    wf.setframerate(16000)
+    wf.writeframes(b''.join(dataframes))
+    wf.close()
+def play(file_path):
+    wf=wave.open(file_path,'rb')
+    stream = p.open(format=FORMAT,
+                channels=CHANNELS,
+                rate=RATE,
+                output=True,
+                frames_per_buffer=CHUNK)
+    data=wf.readframes(1024)
+    while len(data) > 0:
+       stream.write(data)
+       data = wf.readframes(1024)
+    stream.stop_stream()
+    stream.close()
+def text2sound(words,filepath):
+   result = client.synthesis(words, 'zh', 1, {'vol': 5, 'aue': 6, 'per': 4}) 
+   if not isinstance(result, dict):
+     with open(filepath, 'wb') as f:
+        f.write(result)
+     return True
+   else:
+     return False
+def recording():
+   streama = p.open(format=FORMAT,
+                channels=CHANNELS,
+                rate=RATE,
+                input=True,
+                frames_per_buffer=CHUNK)
+   for i in range(0,128):
+      data = streama.read(int(RATE*20/1000))
+      active = vad.is_speech(data, RATE)
+      frames.append(data)
+      #audio_data = np.fromstring(data, dtype=np.short)
+      #large_sample_count = np.sum( audio_data > 800 )
+      #temp = np.max(audio_data)
+      print(active)
+      #stream.write(data)
+   streama.stop_stream()
+   streama.close()
+   rectofile(WAVE_OUTPUT_FILENAME,frames)
+def huifang():
+   streamb = p.open(format=FORMAT,
+                channels=CHANNELS,
+                rate=RATE,
+                input=True,
+                frames_per_buffer=CHUNK)
+   streamc = p.open(format=FORMAT,
+                channels=CHANNELS,
+                rate=RATE,
+                
+                output=True,
+                frames_per_buffer=CHUNK)
+   for i in range(0,1028):
+      data = streamb.read(int(RATE*20/1000))
+      active = vad.is_speech(data, RATE)
+      #audio_data = np.fromstring(data, dtype=np.short)
+      #large_sample_count = np.sum( audio_data > 800 )
+      #temp = np.max(audio_data)
+      print(active)
+      streamc.write(data)
+   streamb.stop_stream()
+   streamb.close()
+   streamc.stop_stream()
+   streamc.close()
+def dsluyin(saytime):
+  GPIO.setmode(GPIO.BCM)
+  GPIO.setup(2,GPIO.OUT)
+  GPIO.output(2,1)
+  stream = p.open(format=FORMAT,
+                channels=CHANNELS,
+                rate=RATE,
+                input=True,
+                frames_per_buffer=CHUNK)
+  while (1):
+      #play("qingjiang.wav")
+      GPIO.output(2,0)
+      global exitFlag
+      
+      frames.clear()
+      isly=0
+      for i in range(0, int(50*saytime)):
+          data = stream.read(CHUNK)
+          frames.append(data)
+          audio_data = np.fromstring(data, dtype=np.short)
+          #large_sample_count = np.sum( audio_data > 800 )
+          #time = np.arange(0, RATE) * (1.0 / RATE)
+          temp = np.max(audio_data)
+          #print(temp)
+          if(temp>1500):
+             isly=1
+      #play("qingjsh.wav")
+      if(isly==0):
+        continue
+      GPIO.output(2,1)
+      thread1 = myThread(3,"Thread-3",2,26)
+      rectofile(WAVE_OUTPUT_FILENAME,frames)
+      resulttext=sound2text(WAVE_OUTPUT_FILENAME)
+      if("开始" in resulttext):
+         exitFlag=0
+         thread1.start()
+      if("停止" in resulttext):
+         #global exitFlag
+         exitFlag=1
+      print(resulttext)
+def jkluyin():
+  isly=0
+  ly=0
+  stream = p.open(format=FORMAT,
+                channels=CHANNELS,
+                rate=RATE,
+                input=True,
+                frames_per_buffer=CHUNK)
+  while (1):
+      isly=0
+      global exitFlag
+      exitFlag=0
+      frames.clear()
+      print("begin......")
+      while(1):
+        
+        ly=0
+        for i in range(0, int(100)):
+          data = stream.read(CHUNK)
+          frames.append(data)
+          #audio_data = np.fromstring(data, dtype=np.short)
+          #large_sample_count = np.sum( audio_data > 800 )
+          #time = np.arange(0, RATE) * (1.0 / RATE)
+          #temp = np.max(audio_data)
+          #print(temp)
+          #if(temp>800):
+          active = vad.is_speech(data,RATE)
+          print(active)
+          if active:
+            ly=1
+            isly=1
+          
+        if(ly==0):
+          break
+      if(isly==0):
+        continue
+      print('ok....')
+      time.sleep(0.5)
+      thread1 = myThread(3,"Thread-3",2,26)
+      
+      
+      rectofile(WAVE_OUTPUT_FILENAME,frames)
+      time.sleep(0.5)
+      resulttext=sound2text(WAVE_OUTPUT_FILENAME)
+      time.sleep(1)
+      print(resulttext)
+      if("开始" in resulttext):
+         thread1.start()
+      if("停止" in resulttext):
+         #global exitFlag
+         exitFlag=1
+      
+      
+def close():
+   p.terminate()
+if __name__ == '__main__':
+  #jkluyin()
+  #close()
+  #print(sound2text("ksly.wav"))
+  #thread1.join()
+  #thread2.join()
+  #text2sound("请稍后","qingjsh.wav")
+  dsluyin(5)
+  
+
+
