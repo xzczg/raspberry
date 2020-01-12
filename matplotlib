@@ -1,4 +1,72 @@
 1，打开LX终端
 2，输入sudo apt-get install python3-matplotlib
 3，使用pip3 install matplotlib命令最后会出一堆错误，不知道是什么原因
+aList ``= [``1``,``2``,``3``]
+bList ``= [``'www'``, ``'pythontab.com'``]
+aList.extend(bList)
+注意：使用 extend 方法会直接修改list数据， extend 方法的返回值为None，所以直接打印aList。录音的读取流可以用这个方法
+
+
 https://www.cnblogs.com/lyrichu/p/6848732.html
+用from matplotlib import pyplot as plt或 import matplotlib.pyplot as
+plt.close() plt.cla() plt.clf() #清除全部 坐标 和图
+plt.axis([0,50,2,300]) 设置x  y 轴坐标起止
+new_ticks1 = np.linspace(0,1024,5) 起止  分的份数
+plt.xticks(new_ticks1)  plt.yticks(new_ticks1)    重设x/y轴
+fig=plt.figure()#建立窗口
+    ax=fig.add_subplot(1,1,1) #绘个数和位置 行 列 第几个
+ax.axis("equal") #设置图像显示的时候XY轴比例
+    ax.set_xlabel('Horizontal Position')
+    ax.set_ylabel('Vertical Position')
+    ax.set_title('Vessel trajectory')
+    plt.grid(True) #添加网格
+    plt.ion()  #开始动态
+import matplotlib.pyplot as plt
+import numpy as np
+
+ax=[]   #保存图1数据
+ay=[]
+bx=[]   #保存图2数据
+by=[]
+num=0   #计数
+plt.ion()    # 开启一个画图的窗口进入交互模式，用于实时更新数据
+# plt.rcParams['savefig.dpi'] = 200 #图片像素
+# plt.rcParams['figure.dpi'] = 200 #分辨率
+plt.rcParams['figure.figsize'] = (10, 10)        # 图像显示大小
+plt.rcParams['font.sans-serif']=['SimHei']   #防止中文标签乱码，还有通过导入字体文件的方法
+plt.rcParams['axes.unicode_minus'] = False
+plt.rcParams['lines.linewidth'] = 0.5   #设置曲线线条宽度
+while num<100:
+    plt.clf()    #清除刷新前的图表，防止数据量过大消耗内存
+    plt.suptitle("总标题",fontsize=30)             #添加总标题，并设置文字大小
+    g1=np.random.random()  #生成随机数画图
+	#图表1
+    ax.append(num)      #追加x坐标值
+    ay.append(g1)       #追加y坐标值
+    agraphic=plt.subplot(2,1,1)
+    agraphic.set_title('子图表标题1')      #添加子标题
+    agraphic.set_xlabel('x轴',fontsize=10)   #添加轴标签
+    agraphic.set_ylabel('y轴', fontsize=20)
+    plt.plot(ax,ay,'g-')                #等于agraghic.plot(ax,ay,'g-')
+	#图表2
+    bx.append(num)
+    by.append(g1)
+    bgraghic=plt.subplot(2, 1, 2)
+    bgraghic.set_title('子图表标题2')
+    bgraghic.plot(bx,by,'r^')
+
+    plt.pause(0.4)     #设置暂停时间，太快图表无法正常显示
+    if num == 15:
+        plt.savefig('picture.png', dpi=300)  # 设置保存图片的分辨率
+        #break
+    num=num+1
+
+plt.ioff()       # 关闭画图的窗口，即关闭交互模式
+plt.show()    
+
+
+plt.axis([-1,10,0,6]) //axis 函数为x轴范围【-1，10】，y【0，6】 
+plt.ylabel(‘sdf’) 
+plt.savefig(‘test’,dpi=600) //图像保存，默认为png格式 
+plt.show() 
+plt.subplot(3,2,4) // 将图像分割为3行，两列，选择第四个区域
