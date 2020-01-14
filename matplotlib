@@ -70,3 +70,6 @@ plt.ylabel(‘sdf’) 
 plt.savefig(‘test’,dpi=600) //图像保存，默认为png格式 
 plt.show() 
 plt.subplot(3,2,4) // 将图像分割为3行，两列，选择第四个区域
+
+走动的X轴，起始小于最新值，结束值可以为最新值
+plt.axis([num-10,num,0,6])
