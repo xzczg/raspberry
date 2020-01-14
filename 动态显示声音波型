@@ -65,6 +65,8 @@ if __name__ == '__main__':
     for i in range(int(5*RATE/CHUNK)): 
         # for 10 seconds
         sound_plot(stream)
+    plt.ioff()
+    plt.show()
     stream.stop_stream()
     stream.close()
     p.terminate()
