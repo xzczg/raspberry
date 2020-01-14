@@ -1,0 +1,70 @@
+如在plot 加label 就要 plt.legend()
+# !/usr/bin/env python
+# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
+"""
+Created on Fri May 12 10:30:00 2017
+@author: Lyrichu
+@description: show the sound in graphs
+"""
+"""
+xsticks与yticks：指定坐标轴的刻度
+linspace(start, stop, num, endpoint, retstep, dtype)
+start:开始值
+stop:终值
+num:元素个数，默认
+
+值50。可选参数
+endpoint : 如果是为 True,包括终值stop。默认值为 True。可选参数
+retstep : 如果为True，返回 (`samples`, `step`),step
+
+表示 samples之间的间距。可选参数
+dtype :  输出数组的数据类型.。如果 `dtype` 没有给定，参照其他输入的数据类型。可选参数
+
+"""
+import pyaudio
+import numpy as np
+from matplotlib import pyplot as plt
+import time
+
+RATE = 16000
+CHUNK = int(RATE/10) # RATE/number of updates per second
+ax=[]
+ay=[]
+tx=0.1
+def sound_plot(stream):
+    global tx
+    plt.clf()
+    plt.cla()
+    agraphic=plt.subplot(2,1,1)
+    #t1 = time.time() # time starting
+    data = np.fromstring(stream.read(CHUNK),dtype = np.int16)
+    temp=np.max(data)
+    print(ax)
+    print(ay)
+    ax.append(tx)
+    ay.append(temp)
+    plt.plot(ax,ay)
+    ltext='时间:%.1f响度:%d'%(tx,temp)
+    #plt.axis([tx-1.5,tx,-2000,3000],5)
+    new_ticks1 = np.linspace(round(tx-10.1,1),tx,10,dtype=np.short)
+    plt.xticks(new_ticks1)  
+    #plt.legend([ltext],loc = 'right') 
+    #plt.legend() 
+    plt.pause(0.1)
+    tx=round(tx+0.1,1)
+    if tx>11:
+      del ax[0]
+      del ay[0]
+if __name__ == '__main__':
+    p = pyaudio.PyAudio()
+    plt.ion()
+    #plt.rcParams['font.sans-serif']=['SimHei']
+    stream = p.open(format = pyaudio.paInt16,channels = 1,rate = RATE,
+                    input = True,frames_per_buffer = CHUNK)
+    for i in range(int(5*RATE/CHUNK)): 
+        # for 10 seconds
+        sound_plot(stream)
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
