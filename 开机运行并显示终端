@@ -1,0 +1,12 @@
+lxterminal --working-directory=/home/pi/ --geometry=640x480 --title="fffff" --command='sh ziqi.sh'
+上面一句可以开启终端  后面的command如果要运行py  则改为='python3 cc.py'，同时被运行的命令要持续运行，当结束时，会退出终端
+右键显示隐藏文件夹.config，再建autostart文件夹，再建扩展名为.desktop任意文件，文件内容：
+[Desktop Entry]
+Name=example
+Comment=My Python Program
+Exec=lxterminal --command='sh ziqi.sh'
+Terminal=true
+MultipleArgs=false
+Type=Application
+Categories=Application;Development;
+StartupNotify=true
